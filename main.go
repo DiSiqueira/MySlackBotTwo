@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/sirupsen/logrus"
 	"github.com/kelseyhightower/envconfig"
+	"github.com/sirupsen/logrus"
 
 	"github.com/disiqueira/MySlackBotTwo/pkg/config"
 	"github.com/disiqueira/MySlackBotTwo/pkg/slack"
@@ -12,9 +12,9 @@ import (
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/9gag"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/catfacts"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/catgif"
+	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/choose"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/chucknorris"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/cmd"
-	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/choose"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/cnpj"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/cotacao"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/cpf"
@@ -29,6 +29,7 @@ import (
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/lula"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/megasena"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/puppet"
+	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/random"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/treta"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/uptime"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/url"
