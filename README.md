@@ -1,6 +1,6 @@
 # go-bot
 
-[![Circle CI](https://circleci.com/gh/go-chat-bot/bot/tree/master.svg?style=svg)](https://circleci.com/gh/go-chat-bot/bot/tree/master) [![GoDoc](https://godoc.org/github.com/go-chat-bot/bot?status.png)](https://godoc.org/github.com/go-chat-bot/bot) [![Coverage Status](https://coveralls.io/repos/github/go-chat-bot/bot/badge.svg?branch=master)](https://coveralls.io/github/go-chat-bot/bot?branch=master)
+[![Circle CI](https://circleci.com/gh/go-chat-bot/bot/tree/master.svg?style=svg)](https://circleci.com/gh/go-chat-bot/bot/tree/master) [![GoDoc](https://godoc.org/github.com/disiqueira/MySlackBotTwo/pkg/bot?status.png)](https://godoc.org/github.com/disiqueira/MySlackBotTwo/pkg/bot) [![Coverage Status](https://coveralls.io/repos/github/go-chat-bot/bot/badge.svg?branch=master)](https://coveralls.io/github/go-chat-bot/bot?branch=master)
 
 IRC, Slack & Telegram bot written in [Go][go] using [go-ircevent][go-ircevent] for IRC connectivity, [nlopes/slack](https://github.com/nlopes/slack) for Slack and [Syfaro/telegram-bot-api](https://github.com/Syfaro/telegram-bot-api) for Telegram.
 
@@ -14,7 +14,7 @@ Type `!help` in the channel or send `!help` in private message.
 
 ## Plugins
 
-Please see the [plugins repository](https://github.com/go-chat-bot/plugins) for a complete list of plugins.
+Please see the [plugins repository](https://github.com/disiqueira/MySlackBotTwo/pkg/plugins) for a complete list of plugins.
 
 You can also write your own, it's really simple.
 
@@ -25,7 +25,7 @@ You can also write your own, it's really simple.
 To deploy your go-bot to Slack, you need to:
 
 * [Create a new bot user](https://my.slack.com/services/new/bot) integration on Slack and get your token
-* Import the package `github.com/go-chat-bot/bot/slack`
+* Import the package `github.com/disiqueira/MySlackBotTwo/pkg/bot/slack`
 * Import the commands you would like to use
 * Call `slack.Run(token)`
 
@@ -37,10 +37,10 @@ package main
 import (
     "os"
 
-    "github.com/go-chat-bot/bot/slack"
-    _ "github.com/go-chat-bot/plugins/catfacts"
-    _ "github.com/go-chat-bot/plugins/catgif"
-    _ "github.com/go-chat-bot/plugins/chucknorris"
+    "github.com/disiqueira/MySlackBotTwo/pkg/bot/slack"
+    _ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/catfacts"
+    _ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/catgif"
+    _ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/chucknorris"
     // Import all the commands you wish to use
 )
 
@@ -53,7 +53,7 @@ func main() {
 
 To deploy your own go-bot to IRC, you need to:
 
-* Import the package `github.com/go-chat-bot/bot/irc`
+* Import the package `github.com/disiqueira/MySlackBotTwo/pkg/bot/irc`
 * Import the commands you would like to use
 * Fill the Config struct
 * Call `irc.Run(config)`
@@ -62,10 +62,10 @@ Here is a full example:
 ```Go
 package main
 	import (
-		"github.com/go-chat-bot/bot/irc"
-		_ "github.com/go-chat-bot/plugins/catfacts"
-		_ "github.com/go-chat-bot/plugins/catgif"
-		_ "github.com/go-chat-bot/plugins/chucknorris"
+		"github.com/disiqueira/MySlackBotTwo/pkg/bot/irc"
+		_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/catfacts"
+		_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/catgif"
+		_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/chucknorris"
 		// Import all the commands you wish to use
 		"os"
 		"strings"
@@ -92,7 +92,7 @@ To join channels with passwords just put the password after the channel name sep
 To deploy your go-bot to Telegram, you need to:
 
 * Follow Telegram instructions to [create a new bot user](https://core.telegram.org/bots#3-how-do-i-create-a-bot) and get your token
-* Import the package `github.com/go-chat-bot/bot/telegram`
+* Import the package `github.com/disiqueira/MySlackBotTwo/pkg/bot/telegram`
 * Import the commands you would like to use
 * Call `telegram.Run(token, debug)`
 
@@ -104,10 +104,10 @@ package main
 import (
     "os"
 
-    "github.com/go-chat-bot/bot/telegram"
-    _ "github.com/go-chat-bot/plugins/catfacts"
-    _ "github.com/go-chat-bot/plugins/catgif"
-    _ "github.com/go-chat-bot/plugins/chucknorris"
+    "github.com/disiqueira/MySlackBotTwo/pkg/bot/telegram"
+    _ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/catfacts"
+    _ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/catgif"
+    _ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/chucknorris"
     // Import all the commands you wish to use
 )
 
@@ -120,7 +120,7 @@ func main() {
 
 To deploy your go-bot to Rocket.chat, you need to:
 
-* Import the package `github.com/go-chat-bot/bot/rocket`
+* Import the package `github.com/disiqueira/MySlackBotTwo/pkg/bot/rocket`
 * Import the commands you would like to use
 * Call `rocket.Run(config)`
 
@@ -132,11 +132,11 @@ package main
 import (
 	"os"
 
-	"github.com/go-chat-bot/bot/rocket"
-	_ "github.com/go-chat-bot/plugins/godoc"
-	_ "github.com/go-chat-bot/plugins/catfacts"
-	_ "github.com/go-chat-bot/plugins/catgif"
-	_ "github.com/go-chat-bot/plugins/chucknorris"
+	"github.com/disiqueira/MySlackBotTwo/pkg/bot/rocket"
+	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/godoc"
+	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/catfacts"
+	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/catgif"
+	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/chucknorris"
 )
 
 func main() {

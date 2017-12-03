@@ -1,10 +1,10 @@
-// Package slack implements Slack handlers for github.com/go-chat-bot/bot
+// Package slack implements Slack handlers for github.com/disiqueira/MySlackBotTwo/pkg/bot
 package slack
 
 import (
 	"fmt"
 
-	"github.com/go-chat-bot/bot"
+	"github.com/disiqueira/MySlackBotTwo/pkg/bot"
 	"github.com/nlopes/slack"
 )
 
