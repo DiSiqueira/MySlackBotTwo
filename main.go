@@ -14,6 +14,7 @@ import (
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/catgif"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/chucknorris"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/cmd"
+	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/choose"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/cnpj"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/cotacao"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/cpf"
