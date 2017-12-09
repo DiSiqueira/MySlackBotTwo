@@ -23,6 +23,7 @@ var (
 )
 
 func defaultMessageFilter(message string, sender *bot.User) (string, slack.PostMessageParameters) {
+	params.EscapeText = false
 	return message, params
 }
 
