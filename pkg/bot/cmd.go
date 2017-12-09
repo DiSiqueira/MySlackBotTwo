@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"sync"
+
+	"github.com/disiqueira/MySlackBotTwo/pkg/config"
 )
 
 // Cmd holds the parsed user's input for easier handling of commands
@@ -106,6 +108,7 @@ var (
 	commands         = make(map[string]*customCommand)
 	passiveCommands  = make(map[string]passiveCmdFunc)
 	periodicCommands = make(map[string]PeriodicConfig)
+	cfgs config.Specification
 )
 
 // RegisterCommand adds a new command to the bot.
@@ -163,6 +166,15 @@ func RegisterPassiveCommand(command string, cmdFunc func(cmd *PassiveCmd) (strin
 // cmdFunc: A no-arg function which gets triggered periodically
 func RegisterPeriodicCommand(command string, config PeriodicConfig) {
 	periodicCommands[command] = config
+}
+
+//// TODO Last time solution this needs to be rethink
+func RegisterConfigs(newConfig config.Specification) {
+	cfgs = newConfig
+}
+
+func Configs() config.Specification {
+	return cfgs
 }
 
 // Disable allows disabling commands that were registered.

@@ -34,21 +34,22 @@ import (
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/uptime"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/url"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/web"
+	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/weather"
 )
 
 func main() {
 	logrus.Info("Starting MySlackBot")
 
 	logrus.Info("Loading configs")
-	var configs config.Specs
-	if err := envconfig.Process("msb", &configs); err != nil {
+	var cfgs config.Specs
+	if err := envconfig.Process("msb", &cfgs); err != nil {
 		logrus.Fatal(err.Error())
 	}
-	logrus.Infof("Configs: %v", configs)
+	logrus.Infof("Configs: %v", cfgs)
 
 	fmt.Println("MySlackBot running!")
 
 	logrus.Info("Starting Slack")
 
-	slack.Run(configs.SlackToken())
+	slack.Run(&cfgs)
 }

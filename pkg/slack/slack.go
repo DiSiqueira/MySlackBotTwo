@@ -6,6 +6,7 @@ import (
 
 	"github.com/disiqueira/MySlackBotTwo/pkg/bot"
 	"github.com/nlopes/slack"
+	"github.com/disiqueira/MySlackBotTwo/pkg/config"
 )
 
 type MessageFilter func(string, *bot.User) (string, slack.PostMessageParameters)
@@ -95,25 +96,20 @@ func ownMessage(UserID string) bool {
 	return botUserID == UserID
 }
 
-func RunWithFilter(token string, customMessageFilter MessageFilter) {
-	if customMessageFilter == nil {
-		panic("A valid message filter must be provided.")
-	}
-	messageFilter = customMessageFilter
-	Run(token)
-}
-
 // Run connects to slack RTM API using the provided token
-func Run(token string) {
-	api = slack.New(token)
+func Run(cfgs config.Specification) {
+	api = slack.New(cfgs.SlackToken())
 	rtm = api.NewRTM()
 	teaminfo, _ = api.GetTeamInfo()
-
-	b := bot.New(&bot.Handlers{
+	handler := &bot.Handlers{
 		Response: responseHandler,
-	})
+	}
+
+	b := bot.New(handler)
 
 	b.Disable([]string{"url"})
+
+	bot.RegisterConfigs(cfgs)
 
 	go rtm.ManageConnection()
 

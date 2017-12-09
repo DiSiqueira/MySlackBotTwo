@@ -22,6 +22,10 @@ type (
 	}
 )
 
+func NewSpecification() Specification{
+	return &Specs{}
+}
+
 func (s *Specs) SlackToken() string {
 	return s.Slack
 }

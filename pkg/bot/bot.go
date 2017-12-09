@@ -41,11 +41,11 @@ func New(h *Handlers) *Bot {
 }
 
 func (b *Bot) startPeriodicCommands() {
-	for _, config := range periodicCommands {
-		func(b *Bot, config PeriodicConfig) {
-			b.cron.AddFunc(config.CronSpec, func() {
-				for _, channel := range config.Channels {
-					message, err := config.CmdFunc(channel)
+	for _, cfg := range periodicCommands {
+		func(b *Bot, cfg PeriodicConfig) {
+			b.cron.AddFunc(cfg.CronSpec, func() {
+				for _, channel := range cfg.Channels {
+					message, err := cfg.CmdFunc(channel)
 					if err != nil {
 						log.Print("Periodic command failed ", err)
 					} else if message != "" {
@@ -53,7 +53,7 @@ func (b *Bot) startPeriodicCommands() {
 					}
 				}
 			})
-		}(b, config)
+		}(b, cfg)
 	}
 	if len(b.cron.Entries()) > 0 {
 		b.cron.Start()
