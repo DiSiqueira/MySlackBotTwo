@@ -4,37 +4,38 @@ import (
 	"fmt"
 	"github.com/disiqueira/MySlackBotTwo/pkg/bot"
 	"github.com/disiqueira/MySlackBotTwo/pkg/provider"
-	"math/rand"
-	"regexp"
-	"strconv"
-)
-
-var (
-	re  = regexp.MustCompile(pattern)
-	api provider.Weather
 )
 
 const (
-	pattern          = "(?i)\\b(pokemon|poke|pikachu)[s|z]{0,1}\\b"
-	maxPokemon       = 500
-	pokeAnswerFormat = "%s (%d) %s"
+	weatherAnswerFormat = "%s, %s - Current: %s %-2.0fC, Humidity: %d%% High: %-2.0fC, Low: %-2.0fC"
 )
 
-func pokemon(command *bot.PassiveCmd) (string, error) {
-	if !re.MatchString(command.Raw) {
-		return "", nil
+var (
+	api provider.Weather
+)
+
+func init() {
+	bot.RegisterCommand(
+		"weather",
+		"Returns the actual weather of a region.",
+		"city",
+		weather)
+}
+
+func getProvider() provider.Weather {
+	if api == nil {
+		api = provider.NewWeather(bot.Configs().OpenWeatherToken())
 	}
-	poke, err := api.Search(strconv.Itoa(rand.Intn(maxPokemon)))
+	return api
+}
+
+func weather(command *bot.Cmd) (string, error) {
+	resp, err := getProvider().ByName(command.Args[0])
 	if err != nil {
 		return "", err
 	}
 
-	return fmt.Sprintf(pokeAnswerFormat, poke.Name, poke.ID, poke.Sprites.FrontDefault), nil
-}
+	answer := fmt.Sprintf(weatherAnswerFormat, resp.Name, resp.Sys.Country, resp.DescriptionTotal(), resp.Main.Temp, resp.Main.Humidity, resp.Main.TempMax, resp.Main.TempMin)
 
-func init() {
-	api = provider.NewWeather()
-	bot.RegisterPassiveCommand(
-		"pokemon",
-		pokemon)
+	return answer, nil
 }
