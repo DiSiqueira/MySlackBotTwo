@@ -26,6 +26,7 @@ import (
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/godoc"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/guid"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/jira"
+	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/lastfm"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/lula"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/megasena"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/puppet"
