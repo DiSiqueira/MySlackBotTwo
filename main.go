@@ -36,6 +36,7 @@ import (
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/url"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/web"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/weather"
+	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/wolfram"
 )
 
 func main() {
