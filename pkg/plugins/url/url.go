@@ -4,52 +4,21 @@ import (
 	"github.com/disiqueira/MySlackBotTwo/pkg/bot"
 	"github.com/disiqueira/MySlackBotTwo/pkg/plugins/web"
 	"html"
-	"net/url"
 	"regexp"
 	"strings"
-)
-
-const (
-	minDomainLength = 3
 )
 
 var (
 	re = regexp.MustCompile("<title>\\n*?(.*?)\\n*?<\\/title>")
 )
 
-func canBeURLWithoutProtocol(text string) bool {
-	return len(text) > minDomainLength &&
-		!strings.HasPrefix(text, "http") &&
-		strings.Contains(text, ".")
-}
-
-func extractURL(text string) string {
-	extractedURL := ""
-	for _, value := range strings.Split(text, " ") {
-		if canBeURLWithoutProtocol(value) {
-			value = "http://" + value
-		}
-
-		parsedURL, err := url.Parse(value)
-		if err != nil {
-			continue
-		}
-		if strings.HasPrefix(parsedURL.Scheme, "http") {
-			extractedURL = parsedURL.String()
-			break
-		}
-	}
-	return extractedURL
-}
-
 func urlTitle(cmd *bot.PassiveCmd) (string, error) {
-	URL := extractURL(cmd.Raw)
-
-	if URL == "" {
+	link := web.ExtractURL(cmd.Raw)
+	if link == "" {
 		return "", nil
 	}
 
-	body, err := web.GetBody(URL)
+	body, err := web.GetBody(link)
 	if err != nil {
 		return "", err
 	}
