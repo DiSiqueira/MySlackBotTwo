@@ -7,13 +7,16 @@ import (
 )
 
 const (
-	seeUsage = "Invalid args, see usage with: !help puppet."
 	invalidParams         = "Invalid parameters"
-	numPhotos = 5
+	numLastPhotos = 5
+	numBestPhotos       = 100
+	minConceptValue = 0.9
 )
 
 var (
-	api provider.Instagram
+	apiInstagram provider.Instagram
+	apiImageRecognition provider.ImageRecognition
+	conceptsDefault  = []string{"bikini", "lingerie", "sexy", "pretty", "glamour", "seduction"}
 )
 
 func init() {
@@ -24,21 +27,23 @@ func init() {
 		image)
 }
 
-func getProvider() (provider.Instagram, error) {
-	var err error
-	if api == nil {
-		api, err = provider.NewInstagram(bot.Configs().InstagramUsername(), bot.Configs().InstagramPassword())
+func image(command *bot.Cmd) (string, error) {
+	if len(command.Args) != 2 {
+		return invalidParams, nil
 	}
-	return api, err
+
+	switch command.Args[0] {
+	case "last":
+		return lastCmd(command)
+	case "best":
+		return bestCmd(command)
+	default:
+		return invalidParams, nil
+	}
 }
 
-func last(command *bot.Cmd) (string, error) {
-	ig, err := getProvider()
-	if err != nil {
-		return "",err
-	}
-
-	photos, err := ig.LastPhotos(command.Args[1], numPhotos)
+func lastCmd(command *bot.Cmd) (string, error) {
+	photos, err := lastPhotos(command, numLastPhotos)
 	if err != nil {
 		return "",err
 	}
@@ -50,15 +55,60 @@ func last(command *bot.Cmd) (string, error) {
 	return strings.Join(plainTextList, " \n "), nil
 }
 
-func image(command *bot.Cmd) (string, error) {
-	if len(command.Args) != 2 {
-		return invalidParams, nil
+func bestCmd(command *bot.Cmd) (string, error) {
+	return conceptImages(command, conceptsDefault)
+}
+
+func conceptImages(command *bot.Cmd, listConcepts []string) (string, error) {
+	photos, err := lastPhotos(command, numBestPhotos)
+	if err != nil {
+		return "",err
 	}
 
-	switch command.Args[0] {
-	case "last":
-		return last(command)
-	default:
-		return invalidParams, nil
+	concepts, err := imageRecognition().Analyze(photos)
+	if err != nil {
+		return "", err
 	}
+
+	var final []string
+	for url, concept := range concepts {
+		if shouldInsertImage(concept, listConcepts, minConceptValue) {
+			final = append(final, url)
+		}
+	}
+	return strings.Join(final, "\n"), nil
+}
+
+func shouldInsertImage(concept provider.Concepts, validateConcepts []string, minValue float64) bool {
+	for _, conceptFilter := range validateConcepts {
+		val, ok := concept[conceptFilter]
+		if ok && val > minValue {
+			return true
+		}
+	}
+	return false
+}
+
+func lastPhotos(command *bot.Cmd, num int) ([]string, error) {
+	ig, err := instagram()
+	if err != nil {
+		return nil,err
+	}
+
+	return ig.LastPhotos(command.Args[1], num)
+}
+
+func instagram() (provider.Instagram, error) {
+	var err error
+	if apiInstagram == nil {
+		apiInstagram, err = provider.NewInstagram(bot.Configs().InstagramUsername(), bot.Configs().InstagramPassword())
+	}
+	return apiInstagram, err
+}
+
+func imageRecognition() (provider.ImageRecognition) {
+	if apiImageRecognition == nil {
+		apiImageRecognition = provider.NewImageRecognition(bot.Configs().ClarifaiToken())
+	}
+	return apiImageRecognition
 }

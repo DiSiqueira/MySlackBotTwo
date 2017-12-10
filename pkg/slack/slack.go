@@ -23,12 +23,12 @@ var (
 )
 
 func defaultMessageFilter(message string, sender *bot.User) (string, slack.PostMessageParameters) {
-	params.EscapeText = false
 	return message, params
 }
 
 func responseHandler(target string, message string, sender *bot.User) {
 	message, params := messageFilter(message, sender)
+	params.EscapeText = false
 	api.PostMessage(target, message, params)
 }
 
