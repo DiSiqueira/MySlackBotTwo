@@ -2,7 +2,6 @@ package provider
 
 import (
 	"github.com/ahmdrz/goinsta"
-	"fmt"
 )
 
 type (
@@ -41,20 +40,16 @@ func (i *instagram) Stories(profile string) ([]string, error) {
 		return nil, err
 	}
 
-	fmt.Println(userResp)
 	tray, err := i.provider.GetUserStories(userResp.User.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println(tray)
-	fmt.Println(tray.Media)
 	var final []string
 	for _, val := range tray.Media {
 		imageURL := ""
 		max := 0
 
-		fmt.Println(val.ImageVersions2.Candidates)
 		for _,image := range val.ImageVersions2.Candidates {
 			if image.Height > max {
 				max = image.Height
@@ -65,7 +60,6 @@ func (i *instagram) Stories(profile string) ([]string, error) {
 
 		videoURL := ""
 		max = 0
-		fmt.Println(val.VideoVersions)
 		for _,video := range val.VideoVersions {
 			if video.Height > max {
 				max = video.Height
