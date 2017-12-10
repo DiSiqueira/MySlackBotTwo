@@ -23,7 +23,7 @@ func init() {
 	bot.RegisterCommand(
 		"instagram",
 		"Interact with Instagram",
-		"(last|follow|stories|best) profile",
+		"(last|follow|stories|best|bikini) profile",
 		image)
 }
 
@@ -37,6 +37,10 @@ func image(command *bot.Cmd) (string, error) {
 		return lastCmd(command)
 	case "best":
 		return bestCmd(command)
+	case "bikini":
+		return bikiniCmd(command)
+	case "sexy":
+		return sexyCmd(command)
 	default:
 		return invalidParams, nil
 	}
@@ -59,6 +63,31 @@ func bestCmd(command *bot.Cmd) (string, error) {
 	return conceptImages(command, conceptsDefault)
 }
 
+func bikiniCmd(command *bot.Cmd) (string, error) {
+	return conceptImages(command, []string{"bikini"})
+}
+
+func sexyCmd(command *bot.Cmd) (string, error) {
+	return conceptImages(command, []string{"sexy"})
+}
+
+func lastPhotos(command *bot.Cmd, num int) ([]string, error) {
+	ig, err := instagram()
+	if err != nil {
+		return nil,err
+	}
+
+	return ig.LastPhotos(command.Args[1], num)
+}
+
+func instagram() (provider.Instagram, error) {
+	var err error
+	if apiInstagram == nil {
+		apiInstagram, err = provider.NewInstagram(bot.Configs().InstagramUsername(), bot.Configs().InstagramPassword())
+	}
+	return apiInstagram, err
+}
+
 func conceptImages(command *bot.Cmd, listConcepts []string) (string, error) {
 	photos, err := lastPhotos(command, numBestPhotos)
 	if err != nil {
@@ -79,6 +108,13 @@ func conceptImages(command *bot.Cmd, listConcepts []string) (string, error) {
 	return strings.Join(final, "\n"), nil
 }
 
+func imageRecognition() (provider.ImageRecognition) {
+	if apiImageRecognition == nil {
+		apiImageRecognition = provider.NewImageRecognition(bot.Configs().ClarifaiToken())
+	}
+	return apiImageRecognition
+}
+
 func shouldInsertImage(concept provider.Concepts, validateConcepts []string, minValue float64) bool {
 	for _, conceptFilter := range validateConcepts {
 		val, ok := concept[conceptFilter]
@@ -87,28 +123,4 @@ func shouldInsertImage(concept provider.Concepts, validateConcepts []string, min
 		}
 	}
 	return false
-}
-
-func lastPhotos(command *bot.Cmd, num int) ([]string, error) {
-	ig, err := instagram()
-	if err != nil {
-		return nil,err
-	}
-
-	return ig.LastPhotos(command.Args[1], num)
-}
-
-func instagram() (provider.Instagram, error) {
-	var err error
-	if apiInstagram == nil {
-		apiInstagram, err = provider.NewInstagram(bot.Configs().InstagramUsername(), bot.Configs().InstagramPassword())
-	}
-	return apiInstagram, err
-}
-
-func imageRecognition() (provider.ImageRecognition) {
-	if apiImageRecognition == nil {
-		apiImageRecognition = provider.NewImageRecognition(bot.Configs().ClarifaiToken())
-	}
-	return apiImageRecognition
 }
