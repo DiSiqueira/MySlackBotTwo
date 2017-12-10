@@ -24,7 +24,7 @@ func init() {
 	bot.RegisterCommand(
 		"instagram",
 		"Interact with Instagram",
-		"(last|follow|stories|best|bikini) profile",
+		"(last|follow|best|bikini) profile",
 		image)
 }
 
@@ -44,8 +44,6 @@ func image(command *bot.Cmd) (string, error) {
 		return sexyCmd(command)
 	case "follow":
 		return followCmd(command)
-	case "stories":
-		return storiesCmd(command)
 	default:
 		return invalidParams, nil
 	}
@@ -86,18 +84,6 @@ func followCmd(command *bot.Cmd) (string, error) {
 	}
 
 	return fmt.Sprintf("Following: %s", command.Args[1]), nil
-}
-
-func storiesCmd(command *bot.Cmd) (string, error) {
-	ig, err := instagram()
-	if err != nil {
-		return "", err
-	}
-	stories, err := ig.Stories(command.Args[1])
-	if err != nil {
-		return "", err
-	}
-	return strings.Join(stories, " \n "), nil
 }
 
 func lastPhotos(command *bot.Cmd, num int) ([]string, error) {
