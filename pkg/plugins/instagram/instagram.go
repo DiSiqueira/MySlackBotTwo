@@ -4,6 +4,7 @@ import (
 	"github.com/disiqueira/MySlackBotTwo/pkg/bot"
 	"github.com/disiqueira/MySlackBotTwo/pkg/provider"
 	"strings"
+	"fmt"
 )
 
 const (
@@ -41,6 +42,8 @@ func image(command *bot.Cmd) (string, error) {
 		return bikiniCmd(command)
 	case "sexy":
 		return sexyCmd(command)
+	case "follow":
+		return followCmd(command)
 	default:
 		return invalidParams, nil
 	}
@@ -69,6 +72,18 @@ func bikiniCmd(command *bot.Cmd) (string, error) {
 
 func sexyCmd(command *bot.Cmd) (string, error) {
 	return conceptImages(command, []string{"sexy"})
+}
+
+func followCmd(command *bot.Cmd) (string, error) {
+	ig, err := instagram()
+	if err != nil {
+		return "", err
+	}
+	if err = ig.Follow(command.Args[1]); err != nil {
+		return fmt.Sprintf("Follow: Err: %s", err.Error()), err
+	}
+
+	return fmt.Sprintf("Following: %s", command.Args[1]), nil
 }
 
 func lastPhotos(command *bot.Cmd, num int) ([]string, error) {

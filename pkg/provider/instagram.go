@@ -7,6 +7,7 @@ type (
 		Login() error
 		Logout() error
 		LastPhotos(profile string, total int) ([]string, error)
+		Follow(profile string) (error)
 	}
 
 	instagram struct {
@@ -27,6 +28,16 @@ func (i *instagram) Login() error {
 
 func (i *instagram) Logout() error {
 	return i.provider.Logout()
+}
+
+func (i *instagram) Follow(profile string) (error) {
+	userResp, err := i.provider.GetUserByUsername(profile)
+	if err != nil {
+		return err
+	}
+
+	_, err = i.provider.Follow(userResp.User.ID)
+	return err
 }
 
 func (i *instagram) LastPhotos(profile string, total int) ([]string, error) {
