@@ -30,34 +30,41 @@ type Handlers struct {
 	Response ResponseHandler
 }
 
+var (
+	// std is the name of the standard bot
+	std *Bot
+)
+
 // New configures a new bot instance
 func New(h *Handlers) *Bot {
-	b := &Bot{
+	std = &Bot{
 		handlers: h,
 		cron:     cron.New(),
 	}
-	b.startPeriodicCommands()
-	return b
+	std.startPeriodicCommands()
+	return std
 }
 
 func (b *Bot) startPeriodicCommands() {
 	for _, cfg := range periodicCommands {
-		func(b *Bot, cfg PeriodicConfig) {
-			b.cron.AddFunc(cfg.CronSpec, func() {
-				for _, channel := range cfg.Channels {
-					message, err := cfg.CmdFunc(channel)
-					if err != nil {
-						log.Print("Periodic command failed ", err)
-					} else if message != "" {
-						b.handlers.Response(channel, message, nil)
-					}
-				}
-			})
-		}(b, cfg)
+		StartPeriodicCommand(b, cfg)
 	}
 	if len(b.cron.Entries()) > 0 {
 		b.cron.Start()
 	}
+}
+
+func StartPeriodicCommand(b *Bot, cfg PeriodicConfig) error {
+	return b.cron.AddFunc(cfg.CronSpec, func() {
+		for _, channel := range cfg.Channels {
+			message, err := cfg.CmdFunc(channel)
+			if err != nil {
+				log.Print("Periodic command failed ", err)
+			} else if message != "" {
+				b.handlers.Response(channel, message, nil)
+			}
+		}
+	})
 }
 
 // MessageReceived must be called by the protocol upon receiving a message
