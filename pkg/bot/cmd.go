@@ -72,6 +72,11 @@ type customCommand struct {
 	CmdFuncV3   activeCmdFuncV3
 	Description string
 	ExampleArgs string
+	MinArgs		int
+}
+
+func (cc *customCommand) SetMinArgs(min int) {
+	cc.MinArgs = min
 }
 
 // CmdResult is the result message of V2 commands
@@ -97,6 +102,7 @@ const (
 	commandNotAvailable   = "Command %v not available."
 	noCommandsAvailable   = "No commands available."
 	errorExecutingCommand = "Error executing %s: %s"
+	seeUsage = "Invalid args, see usage with: !help %s."
 )
 
 type passiveCmdFunc func(cmd *PassiveCmd) (string, error)
@@ -117,7 +123,7 @@ var (
 // decription: Description of the command to use in !help, example: Reverses a string
 // exampleArgs: Example args to be displayed in !help <command>, example: string to be reversed
 // cmdFunc: Function which will be executed. It will received a parsed command as a Cmd value
-func RegisterCommand(command, description, exampleArgs string, cmdFunc activeCmdFuncV1) {
+func RegisterCommand(command, description, exampleArgs string, cmdFunc activeCmdFuncV1) *customCommand {
 	commands[command] = &customCommand{
 		Version:     v1,
 		Cmd:         command,
@@ -125,11 +131,12 @@ func RegisterCommand(command, description, exampleArgs string, cmdFunc activeCmd
 		Description: description,
 		ExampleArgs: exampleArgs,
 	}
+	return commands[command]
 }
 
 // RegisterCommandV2 adds a new command to the bot.
 // It is the same as RegisterCommand but the command can specify the channel to reply to
-func RegisterCommandV2(command, description, exampleArgs string, cmdFunc activeCmdFuncV2) {
+func RegisterCommandV2(command, description, exampleArgs string, cmdFunc activeCmdFuncV2) *customCommand {
 	commands[command] = &customCommand{
 		Version:     v2,
 		Cmd:         command,
@@ -137,11 +144,12 @@ func RegisterCommandV2(command, description, exampleArgs string, cmdFunc activeC
 		Description: description,
 		ExampleArgs: exampleArgs,
 	}
+	return commands[command]
 }
 
 // RegisterCommandV3 adds a new command to the bot.
 // It is the same as RegisterCommand but the command return a chan
-func RegisterCommandV3(command, description, exampleArgs string, cmdFunc activeCmdFuncV3) {
+func RegisterCommandV3(command, description, exampleArgs string, cmdFunc activeCmdFuncV3) *customCommand {
 	commands[command] = &customCommand{
 		Version:     v3,
 		Cmd:         command,
@@ -149,6 +157,7 @@ func RegisterCommandV3(command, description, exampleArgs string, cmdFunc activeC
 		Description: description,
 		ExampleArgs: exampleArgs,
 	}
+	return commands[command]
 }
 
 // RegisterPassiveCommand adds a new passive command to the bot.
@@ -226,6 +235,11 @@ func (b *Bot) handleCmd(c *Cmd) {
 
 	if cmd == nil {
 		log.Printf("Command not found %v", c.Command)
+		return
+	}
+
+	if cmd.MinArgs > len(c.Args) {
+		b.handlers.Response(c.Channel, fmt.Sprintf(seeUsage,c.Command), c.User)
 		return
 	}
 
