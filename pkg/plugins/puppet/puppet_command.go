@@ -13,7 +13,7 @@ const (
 func sendMessage(command *bot.Cmd) (result bot.CmdResult, err error) {
 	result = bot.CmdResult{}
 
-	if !argsValid(command.Args) {
+	if !validCommand(command.Args[0]) {
 		result.Message = seeUsage
 		return
 	}
@@ -23,18 +23,16 @@ func sendMessage(command *bot.Cmd) (result bot.CmdResult, err error) {
 	return
 }
 
-func argsValid(args []string) bool {
-	return len(args) >= 3 && validCommand(args[0])
-}
-
 func validCommand(cmd string) bool {
 	return cmd == "say" || cmd == "act"
 }
 
 func init() {
-	bot.RegisterCommandV2(
+	puppet := bot.RegisterCommandV2(
 		"puppet",
 		"Allows you to send messages through the bot",
-		"say|act #channel your message",
+		"say|act #channel message",
 		sendMessage)
+
+	puppet.SetMinArgs(3)
 }
