@@ -20,6 +20,7 @@ import (
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/cpf"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/crypto"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/dilma"
+	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/echo"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/encoding"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/example"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/gif"
