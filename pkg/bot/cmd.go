@@ -177,9 +177,8 @@ func RegisterPeriodicCommand(command string, config PeriodicConfig) {
 	periodicCommands[command] = config
 }
 
-func EnablePeriodicCommand(command string, config PeriodicConfig) {
-	periodicCommands[command] = config
-	StartPeriodicCommand(std, periodicCommands[command])
+func EnablePeriodicCommand(config PeriodicConfig) {
+	StartPeriodicCommand(std, config)
 }
 
 //// TODO Last time solution this needs to be rethink

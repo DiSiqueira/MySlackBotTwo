@@ -1,7 +1,8 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"os"
 
 	"github.com/kelseyhightower/envconfig"
 	"github.com/sirupsen/logrus"
@@ -22,6 +23,7 @@ import (
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/dilma"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/echo"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/encoding"
+	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/event"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/example"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/gif"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/godoc"
@@ -37,8 +39,8 @@ import (
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/treta"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/uptime"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/url"
-	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/web"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/weather"
+	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/web"
 	_ "github.com/disiqueira/MySlackBotTwo/pkg/plugins/wolfram"
 )
 
@@ -52,8 +54,7 @@ func main() {
 	}
 	logrus.Infof("Configs: %v", cfgs)
 
-	fmt.Println("MySlackBot running!")
-
+	log.SetOutput(os.Stdout)
 	logrus.Info("Starting Slack")
 
 	slack.Run(&cfgs)

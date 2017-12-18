@@ -2,6 +2,7 @@
 package bot
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 	"time"
@@ -55,16 +56,23 @@ func (b *Bot) startPeriodicCommands() {
 }
 
 func StartPeriodicCommand(b *Bot, cfg PeriodicConfig) error {
-	return b.cron.AddFunc(cfg.CronSpec, func() {
+	err := b.cron.AddFunc(cfg.CronSpec, func() {
 		for _, channel := range cfg.Channels {
 			message, err := cfg.CmdFunc(channel)
 			if err != nil {
-				log.Print("Periodic command failed ", err)
+				log.Println("Periodic command failed ", err)
 			} else if message != "" {
 				b.handlers.Response(channel, message, nil)
 			}
 		}
 	})
+
+	if err != nil {
+		return err
+	}
+
+	b.cron.Run()
+	return nil
 }
 
 // MessageReceived must be called by the protocol upon receiving a message
