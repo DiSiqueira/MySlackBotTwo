@@ -6,6 +6,10 @@ import (
 	"sync"
 
 	"github.com/disiqueira/MySlackBotTwo/pkg/config"
+	"io/ioutil"
+	"strings"
+	"plugin"
+	"os"
 )
 
 // Cmd holds the parsed user's input for easier handling of commands
@@ -64,19 +68,16 @@ type User struct {
 	IsBot    bool
 }
 
-type customCommand struct {
-	Version     int
+type customPlugin struct {
 	Cmd         string
-	CmdFuncV1   activeCmdFuncV1
-	CmdFuncV2   activeCmdFuncV2
-	CmdFuncV3   activeCmdFuncV3
+	CmdFunc     activePluginFunc
 	Description string
 	ExampleArgs string
 	MinArgs		int
 }
 
-func (cc *customCommand) SetMinArgs(min int) {
-	cc.MinArgs = min
+func (cp *customPlugin) SetMinArgs(min int) {
+	cp.MinArgs = min
 }
 
 // CmdResult is the result message of V2 commands
@@ -86,17 +87,11 @@ type CmdResult struct {
 }
 
 // CmdResultV3 is the result message of V3 commands
-type CmdResultV3 struct {
+type PluginResult struct {
 	Channel string
 	Message chan string
 	Done    chan bool
 }
-
-const (
-	v1 = iota
-	v2
-	v3
-)
 
 const (
 	commandNotAvailable   = "Command %v not available."
@@ -105,59 +100,32 @@ const (
 	seeUsage = "Invalid args, see usage with: !help %s."
 )
 
-type passiveCmdFunc func(cmd *PassiveCmd) (string, error)
-type activeCmdFuncV1 func(cmd *Cmd) (string, error)
-type activeCmdFuncV2 func(cmd *Cmd) (CmdResult, error)
-type activeCmdFuncV3 func(cmd *Cmd) (CmdResultV3, error)
+type (
+	passiveCmdFunc func(cmd *PassiveCmd) (string, error)
+
+	activePluginFunc interface {
+		Init()
+		Command() string
+		Description() string
+		ExampleArgs() string
+		Execute([]string, string) (string, string, error)
+	}
+)
 
 var (
-	commands         = make(map[string]*customCommand)
+	plugins 		 = make(map[string]*customPlugin)
 	passiveCommands  = make(map[string]passiveCmdFunc)
 	periodicCommands = make(map[string]PeriodicConfig)
 	cfgs config.Specification
 )
 
-// RegisterCommand adds a new command to the bot.
-// The command(s) should be registered in the Init() func of your package
-// command: String which the user will use to execute the command, example: reverse
-// decription: Description of the command to use in !help, example: Reverses a string
-// exampleArgs: Example args to be displayed in !help <command>, example: string to be reversed
-// cmdFunc: Function which will be executed. It will received a parsed command as a Cmd value
-func RegisterCommand(command, description, exampleArgs string, cmdFunc activeCmdFuncV1) *customCommand {
-	commands[command] = &customCommand{
-		Version:     v1,
-		Cmd:         command,
-		CmdFuncV1:   cmdFunc,
-		Description: description,
-		ExampleArgs: exampleArgs,
+func RegisterPlugin(cmd activePluginFunc) {
+	plugins[cmd.Command()] = &customPlugin{
+		Cmd:         cmd.Command(),
+		CmdFunc:     cmd,
+		Description: cmd.Description(),
+		ExampleArgs: cmd.ExampleArgs(),
 	}
-	return commands[command]
-}
-
-// RegisterCommandV2 adds a new command to the bot.
-// It is the same as RegisterCommand but the command can specify the channel to reply to
-func RegisterCommandV2(command, description, exampleArgs string, cmdFunc activeCmdFuncV2) *customCommand {
-	commands[command] = &customCommand{
-		Version:     v2,
-		Cmd:         command,
-		CmdFuncV2:   cmdFunc,
-		Description: description,
-		ExampleArgs: exampleArgs,
-	}
-	return commands[command]
-}
-
-// RegisterCommandV3 adds a new command to the bot.
-// It is the same as RegisterCommand but the command return a chan
-func RegisterCommandV3(command, description, exampleArgs string, cmdFunc activeCmdFuncV3) *customCommand {
-	commands[command] = &customCommand{
-		Version:     v3,
-		Cmd:         command,
-		CmdFuncV3:   cmdFunc,
-		Description: description,
-		ExampleArgs: exampleArgs,
-	}
-	return commands[command]
 }
 
 // RegisterPassiveCommand adds a new passive command to the bot.
@@ -184,6 +152,40 @@ func EnablePeriodicCommand(config PeriodicConfig) {
 //// TODO Last time solution this needs to be rethink
 func RegisterConfigs(newConfig config.Specification) {
 	cfgs = newConfig
+}
+
+func LoadPlugins() {
+	files, err := ioutil.ReadDir("./plugins")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		fileDetails := strings.Split(file.Name(),".")
+		if fileDetails[1] != "so" {
+			continue
+		}
+		fmt.Printf("Loading: %s \n",file.Name())
+		plug, err := plugin.Open(fmt.Sprintf("./plugins/%s",file.Name()))
+		if err != nil {
+			log.Fatal(err)
+		}
+		symCustomPlugin, err := plug.Lookup("CustomPlugin")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var customPlugin activePluginFunc
+		customPlugin, ok := symCustomPlugin.(activePluginFunc)
+		if !ok {
+			fmt.Println("unexpected type from module symbol")
+			os.Exit(1)
+		}
+		RegisterPlugin(customPlugin)
+	}
 }
 
 func Configs() config.Specification {
@@ -234,11 +236,11 @@ func (b *Bot) isDisabled(cmd string) bool {
 	return false
 }
 
-func (b *Bot) handleCmd(c *Cmd) {
-	cmd := commands[c.Command]
+func (b *Bot) handlePlugin(c *Cmd) {
+	cmd := plugins[c.Command]
 
 	if cmd == nil {
-		log.Printf("Command not found %v", c.Command)
+		log.Printf("Command not found %v \n", c.Command)
 		return
 	}
 
@@ -247,39 +249,16 @@ func (b *Bot) handleCmd(c *Cmd) {
 		return
 	}
 
-	switch cmd.Version {
-	case v1:
-		message, err := cmd.CmdFuncV1(c)
-		b.checkCmdError(err, c)
-		if message != "" {
-			b.handlers.Response(c.Channel, message, c.User)
-		}
-	case v2:
-		result, err := cmd.CmdFuncV2(c)
-		b.checkCmdError(err, c)
-		if result.Channel == "" {
-			result.Channel = c.Channel
-		}
-
-		if result.Message != "" {
-			b.handlers.Response(result.Channel, result.Message, c.User)
-		}
-	case v3:
-		result, err := cmd.CmdFuncV3(c)
-		b.checkCmdError(err, c)
-		if result.Channel == "" {
-			result.Channel = c.Channel
-		}
-		for {
-			select {
-			case message := <-result.Message:
-				if message != "" {
-					b.handlers.Response(result.Channel, message, c.User)
-				}
-			case <-result.Done:
-				return
-			}
-		}
+	message, channel, err := cmd.CmdFunc.Execute(c.Args, c.Channel)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	if channel == "" {
+		channel = c.Channel
+	}
+	if message != "" {
+		b.handlers.Response(channel, message, c.User)
 	}
 }
 

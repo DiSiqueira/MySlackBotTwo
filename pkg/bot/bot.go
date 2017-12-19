@@ -2,13 +2,16 @@
 package bot
 
 import (
-	"fmt"
 	"log"
 	"math/rand"
 	"time"
 
 	"github.com/robfig/cron"
 )
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 const (
 	// CmdPrefix is the prefix used to identify a command.
@@ -102,10 +105,6 @@ func (b *Bot) MessageReceived(channel *ChannelData, message *Message, sender *Us
 	case helpCommand:
 		b.help(command)
 	default:
-		b.handleCmd(command)
+		b.handlePlugin(command)
 	}
-}
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
 }

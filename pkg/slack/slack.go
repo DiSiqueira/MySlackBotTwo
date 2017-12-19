@@ -111,6 +111,7 @@ func Run(cfgs config.Specification) {
 	b.Disable([]string{"url"})
 
 	bot.RegisterConfigs(cfgs)
+	bot.LoadPlugins()
 
 	go rtm.ManageConnection()
 

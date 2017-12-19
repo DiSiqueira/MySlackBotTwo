@@ -20,7 +20,7 @@ func (b *Bot) help(c *Cmd) {
 		return
 	}
 
-	command := commands[cmd.Command]
+	command := plugins[cmd.Command]
 	if command == nil {
 		b.showAvailabeCommands(c.Channel, c.User)
 		return
@@ -29,7 +29,7 @@ func (b *Bot) help(c *Cmd) {
 	b.showHelp(cmd, command)
 }
 
-func (b *Bot) showHelp(c *Cmd, help *customCommand) {
+func (b *Bot) showHelp(c *Cmd, help *customPlugin) {
 	if help.Description != "" {
 		b.handlers.Response(c.Channel, fmt.Sprintf(helpDescripton, help.Description), c.User)
 	}
@@ -38,7 +38,7 @@ func (b *Bot) showHelp(c *Cmd, help *customCommand) {
 
 func (b *Bot) showAvailabeCommands(channel string, sender *User) {
 	var cmds []string
-	for k := range commands {
+	for k := range plugins {
 		cmds = append(cmds, k)
 	}
 	b.handlers.Response(channel, fmt.Sprintf(helpAboutCommand, CmdPrefix), sender)
